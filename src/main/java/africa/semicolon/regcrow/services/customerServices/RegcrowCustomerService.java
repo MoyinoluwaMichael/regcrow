@@ -1,6 +1,7 @@
-package africa.semicolon.regcrow.services;
+package africa.semicolon.regcrow.services.customerServices;
 
 import africa.semicolon.regcrow.dtos.request.CustomerRegistrationRequest;
+import africa.semicolon.regcrow.dtos.request.CustomerUpdateRequest;
 import africa.semicolon.regcrow.dtos.response.ApiResponse;
 import africa.semicolon.regcrow.dtos.response.CustomerRegistrationResponse;
 import africa.semicolon.regcrow.dtos.response.CustomerResponse;
@@ -18,11 +19,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -36,25 +35,27 @@ import static africa.semicolon.regcrow.utils.ResponseUtils.*;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class RegcrowCustomerService implements CustomerService{
+public class RegcrowCustomerService implements CustomerService {
     private final CustomerRepository customerRepository;
     private final ModelMapper modelMapper;
+
     @Override
     public CustomerRegistrationResponse register(CustomerRegistrationRequest customerRegistrationRequest) throws CustomerRegistrationFailedException {
         BioData bioData = modelMapper.map(customerRegistrationRequest, BioData.class);
-        Customer customer=new Customer();
+        Customer customer = new Customer();
         customer.setBioData(bioData);
-        Customer savedCustomer=customerRepository.save(customer);
+        Customer savedCustomer = customerRepository.save(customer);
 
         boolean isSavedCustomer = savedCustomer.getId() != null;
-        if (!isSavedCustomer) throw new CustomerRegistrationFailedException(String.format(USER_REGISTRATION_FAILED, customerRegistrationRequest.getEmail()));
+        if (!isSavedCustomer)
+            throw new CustomerRegistrationFailedException(String.format(USER_REGISTRATION_FAILED, customerRegistrationRequest.getEmail()));
         return buildRegisterCustomerResponse(savedCustomer.getId());
     }
 
     @Override
     public CustomerResponse getCustomerById(Long id) throws UserNotFoundException {
-        Optional<Customer> foundCustomer =  customerRepository.findById(id);
-        Customer customer = foundCustomer.orElseThrow(()->new UserNotFoundException(
+        Optional<Customer> foundCustomer = customerRepository.findById(id);
+        Customer customer = foundCustomer.orElseThrow(() -> new UserNotFoundException(
                 String.format(USER_WITH_ID_NOT_FOUND, id)
         ));
         CustomerResponse customerResponse = buildCustomerResponse(customer);
@@ -66,26 +67,26 @@ public class RegcrowCustomerService implements CustomerService{
     public List<CustomerResponse> getAllCustomers(int page, int items) {
         Pageable pageable = buildPageRequest(page, items);
         Page<Customer> customerPage = customerRepository.findAll(pageable);
-        List<Customer> customers=customerPage.getContent();
+        List<Customer> customers = customerPage.getContent();
         return customers.stream()
-                        .map(RegcrowCustomerService::buildCustomerResponse)
-                        .toList();
+                .map(RegcrowCustomerService::buildCustomerResponse)
+                .toList();
     }
 
     @Override
     public ApiResponse<?> deleteCustomer(Long id) {
         customerRepository.deleteById(id);
         return ApiResponse.builder()
-                          .message(USER_DELETED_SUCCESSFULLY)
-                          .build();
+                .message(USER_DELETED_SUCCESSFULLY)
+                .build();
     }
 
     private static CustomerResponse buildCustomerResponse(Customer customer) {
         return CustomerResponse.builder()
-                               .id(customer.getId())
-                               .email(customer.getBioData().getEmail())
-                               .name(customer.getFirstname()+" "+customer.getLastname())
-                               .build();
+                .id(customer.getId())
+                .email(customer.getBioData().getEmail())
+                .name(customer.getFirstname() + " " + customer.getLastname())
+                .build();
     }
 
     @Override
@@ -97,18 +98,18 @@ public class RegcrowCustomerService implements CustomerService{
     public ApiResponse<?> updateCustomerDetails(Long id, JsonPatch jsonPatch) throws UserNotFoundException, ProfileUpdateFailedException {
         ObjectMapper mapper = new ObjectMapper();
         Optional<Customer> foundCustomer = customerRepository.findById(id);
-        Customer customer = foundCustomer.orElseThrow(()->
+        Customer customer = foundCustomer.orElseThrow(() ->
                 new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id)));
 
         JsonNode customerNode = mapper.convertValue(customer, JsonNode.class);
         try {
-            JsonNode updatedNode=jsonPatch.apply(customerNode);
-            Customer updatedCustomer =  mapper.convertValue(updatedNode, Customer.class);
+            JsonNode updatedNode = jsonPatch.apply(customerNode);
+            Customer updatedCustomer = mapper.convertValue(updatedNode, Customer.class);
             updatedCustomer.setLastModifiedDate(LocalDateTime.now());
             customerRepository.save(updatedCustomer);
             return ApiResponse.builder()
-                                .message(PROFILE_UPDATED_SUCCESSFULLY)
-                                .build();
+                    .message(PROFILE_UPDATED_SUCCESSFULLY)
+                    .build();
         } catch (JsonPatchException e) {
             throw new ProfileUpdateFailedException(e.getMessage());
         }
@@ -120,5 +121,25 @@ public class RegcrowCustomerService implements CustomerService{
         customerRegistrationResponse.setId(customerId);
 
         return customerRegistrationResponse;
+    }
+
+    @Override
+    public ApiResponse<?> updateCustomerDetails2(CustomerUpdateRequest customerUpdateRequest) throws UserNotFoundException {
+        Optional<Customer> customer = customerRepository.findById(customerUpdateRequest.getCustomerId());
+        Customer customerToBeUpdated = customer.orElseThrow(() ->
+                new UserNotFoundException(
+                        String.format(USER_WITH_ID_NOT_FOUND, customerUpdateRequest.getCustomerId())));
+        map(customerUpdateRequest, customerToBeUpdated);
+        customerRepository.save(customerToBeUpdated);
+        return ApiResponse.builder()
+                .message(PROFILE_UPDATED_SUCCESSFULLY)
+                .build();
+    }
+
+    private void map(CustomerUpdateRequest customerUpdateRequest, Customer customerToBeUpdated) {
+        if (customerUpdateRequest.getFirstname() != null)
+            customerToBeUpdated.setFirstname(customerUpdateRequest.getFirstname());
+        if (customerUpdateRequest.getLastname() != null)
+            customerToBeUpdated.setLastname(customerUpdateRequest.getLastname());
     }
 }

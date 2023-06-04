@@ -2,11 +2,13 @@ package africa.semicolon.regcrow.services;
 
 
 import africa.semicolon.regcrow.dtos.request.CustomerRegistrationRequest;
+import africa.semicolon.regcrow.dtos.request.CustomerUpdateRequest;
 import africa.semicolon.regcrow.dtos.response.CustomerRegistrationResponse;
 import africa.semicolon.regcrow.dtos.response.CustomerResponse;
 import africa.semicolon.regcrow.exceptions.CustomerRegistrationFailedException;
 import africa.semicolon.regcrow.exceptions.ProfileUpdateFailedException;
 import africa.semicolon.regcrow.exceptions.UserNotFoundException;
+import africa.semicolon.regcrow.services.customerServices.CustomerService;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.github.fge.jackson.jsonpointer.JsonPointer;
 import com.github.fge.jackson.jsonpointer.JsonPointerException;
@@ -28,18 +30,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RegcrowCustomerServiceTest {
     @Autowired
     private CustomerService customerService;
-
     private CustomerRegistrationRequest customerRegistrationRequest;
     private CustomerRegistrationResponse customerRegistrationResponse;
 
     @BeforeEach
     public void setUp() throws CustomerRegistrationFailedException {
-//        customerService.deleteAll();
-//        customerRegistrationRequest = new CustomerRegistrationRequest();
-//        customerRegistrationRequest.setEmail("9kicks@email.com");
-//        customerRegistrationRequest.setPassword("");
-//
-//        customerRegistrationResponse = customerService.register(customerRegistrationRequest);
+        customerService.deleteAll();
+        customerRegistrationRequest = new CustomerRegistrationRequest();
+        customerRegistrationRequest.setEmail("9kicks@email.com");
+        customerRegistrationRequest.setPassword("");
+
+        customerRegistrationResponse = customerService.register(customerRegistrationRequest);
     }
     @Test
     public void testThatCustomerCanRegister() throws CustomerRegistrationFailedException {
@@ -83,14 +84,15 @@ public class RegcrowCustomerServiceTest {
         JsonPatch updateForm = buildUpdatePatch();
         CustomerResponse foundCustomer = customerService.getCustomerById(customerRegistrationResponse.getId());
         assertThat(foundCustomer.getName().contains("Folahan")
-                &&foundCustomer.getName().contains("Doe")).isFalse();
+                &&foundCustomer.getName().contains("Joshua")).isFalse();
 
         var response = customerService.updateCustomerDetails(customerRegistrationResponse.getId(), updateForm);
         assertThat(response).isNotNull();
 
         CustomerResponse customerResponse = customerService.getCustomerById(customerRegistrationResponse.getId());
+        System.out.println(customerResponse.getName());
         assertThat(customerResponse.getName().contains("Folahan")
-                &&customerResponse.getName().contains("Doe")).isTrue();
+                &&customerResponse.getName().contains("Joshua")).isTrue();
     }
 
     private JsonPatch buildUpdatePatch() {
@@ -111,5 +113,17 @@ public class RegcrowCustomerServiceTest {
         }
     }
 
+    @Test void updateCustomerTest2() throws UserNotFoundException {
+        CustomerResponse customerResponse = customerService.getCustomerById(customerRegistrationResponse.getId());
+        assertThat(customerResponse.getName()).doesNotContain("Olakunle");
 
+        CustomerUpdateRequest customerUpdateRequest = CustomerUpdateRequest.builder()
+                                                                            .customerId(customerResponse.getId())
+                                                                            .firstname("Prof")
+                                                                            .lastname("Olakunle")
+                                                                            .build();
+        customerService.updateCustomerDetails2(customerUpdateRequest);
+        CustomerResponse updatedCustomer = customerService.getCustomerById(customerResponse.getId());
+        assertThat(updatedCustomer.getName()).contains("Olakunle");
+    }
 }

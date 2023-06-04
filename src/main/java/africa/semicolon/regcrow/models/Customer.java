@@ -25,7 +25,7 @@ public class Customer {
     private BioData bioData;
     private String firstname;
     private String lastname;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private BankAccount bankAccount;
     private String profileImage;
 

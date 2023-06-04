@@ -1,5 +1,6 @@
 package africa.semicolon.regcrow;
 
+import africa.semicolon.regcrow.models.BioData;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

@@ -3,14 +3,13 @@ package africa.semicolon.regcrow.controllers;
 
 import africa.semicolon.regcrow.dtos.request.CustomerRegistrationRequest;
 import africa.semicolon.regcrow.exceptions.CustomerRegistrationFailedException;
-import africa.semicolon.regcrow.services.CustomerService;
+import africa.semicolon.regcrow.services.customerServices.CustomerService;
 import com.github.fge.jsonpatch.JsonPatch;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static africa.semicolon.regcrow.utils.AppUtils.JSON_PATCH_CONSTANT;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping("/api/v1/customer")
