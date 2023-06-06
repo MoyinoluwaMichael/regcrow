@@ -98,6 +98,7 @@ public class RegcrowCustomerService implements CustomerService {
     public ApiResponse<?> updateCustomerDetails(Long id, JsonPatch jsonPatch) throws UserNotFoundException, ProfileUpdateFailedException {
         ObjectMapper mapper = new ObjectMapper();
         Optional<Customer> foundCustomer = customerRepository.findById(id);
+
         Customer customer = foundCustomer.orElseThrow(() ->
                 new UserNotFoundException(String.format(USER_WITH_ID_NOT_FOUND, id)));
 

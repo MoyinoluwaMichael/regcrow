@@ -3,14 +3,10 @@ package africa.semicolon.regcrow.services.transactionServices;
 import africa.semicolon.regcrow.dtos.request.TransactionCreationRequest;
 import africa.semicolon.regcrow.dtos.request.TransactionUpdateRequest;
 import africa.semicolon.regcrow.dtos.response.ApiResponse;
-import africa.semicolon.regcrow.dtos.response.CustomerResponse;
 import africa.semicolon.regcrow.dtos.response.TransactionCreationResponse;
 import africa.semicolon.regcrow.dtos.response.TransactionResponse;
 import africa.semicolon.regcrow.exceptions.TransactionCreationFailedException;
 import africa.semicolon.regcrow.exceptions.TransactionNotFoundException;
-import africa.semicolon.regcrow.exceptions.UserNotFoundException;
-import africa.semicolon.regcrow.models.Customer;
-import africa.semicolon.regcrow.models.Payment;
 import africa.semicolon.regcrow.models.Transaction;
 import africa.semicolon.regcrow.repositories.TransactionRepository;
 import africa.semicolon.regcrow.utils.RegcrowMapper;
@@ -24,7 +20,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static africa.semicolon.regcrow.utils.ExceptionUtils.*;
+import static africa.semicolon.regcrow.utils.ExceptionUtils.TRANSACTION_CREATION_FAILED;
+import static africa.semicolon.regcrow.utils.ExceptionUtils.TRANSACTION_WITH_ID_NOT_FOUND;
 import static africa.semicolon.regcrow.utils.ResponseUtils.*;
 
 @Service

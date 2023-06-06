@@ -1,21 +1,17 @@
 package africa.semicolon.regcrow.services;
 
 import africa.semicolon.regcrow.dtos.request.CustomerRegistrationRequest;
-import africa.semicolon.regcrow.dtos.request.CustomerUpdateRequest;
 import africa.semicolon.regcrow.dtos.request.TransactionCreationRequest;
 import africa.semicolon.regcrow.dtos.request.TransactionUpdateRequest;
 import africa.semicolon.regcrow.dtos.response.CustomerRegistrationResponse;
-import africa.semicolon.regcrow.dtos.response.CustomerResponse;
 import africa.semicolon.regcrow.dtos.response.TransactionCreationResponse;
 import africa.semicolon.regcrow.dtos.response.TransactionResponse;
 import africa.semicolon.regcrow.exceptions.CustomerRegistrationFailedException;
 import africa.semicolon.regcrow.exceptions.TransactionCreationFailedException;
 import africa.semicolon.regcrow.exceptions.TransactionNotFoundException;
-import africa.semicolon.regcrow.exceptions.UserNotFoundException;
 import africa.semicolon.regcrow.models.Status;
 import africa.semicolon.regcrow.services.customerServices.CustomerService;
 import africa.semicolon.regcrow.services.transactionServices.TransactionService;
-import africa.semicolon.regcrow.services.transactionServices.TransactionServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +19,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 import static africa.semicolon.regcrow.utils.AppUtils.ONE;
 import static africa.semicolon.regcrow.utils.AppUtils.TWO;
-import static java.math.BigInteger.TEN;
 import static java.math.BigInteger.ZERO;
 import static org.assertj.core.api.Assertions.assertThat;
 
